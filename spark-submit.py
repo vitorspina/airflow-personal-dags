@@ -53,4 +53,4 @@ with DAG(
 
 
     # Set dependency: first Python task, then KubernetesPodOperator
-    hello_task >> spark_submit_task
+    hello_task >> hello_pod
