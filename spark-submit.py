@@ -21,15 +21,36 @@ with DAG(
     )
 
     hello_pod = KubernetesPodOperator(
-        namespace="analytics",  # Change if needed
-        image='ubuntu:24.04',       # lightweight image with bash
-        cmds=["/bin/bash", "-c"],
-        arguments=["echo 'Hello from KubernetesPodOperator!' && sleep 60"],
-        name="hello-pod",
-        task_id="hello_pod_task",
-        get_logs=True,
-        is_delete_operator_pod=True,  # Delete pod after completion
+    namespace='analytics',
+    image='nauedu/nau-analytics-external-data-product:latest',
+    cmds=['/opt/spark/bin/spark-submit'],
+    arguments=[
+        '--master', 'k8s://https://kubernetes.default.svc:443',
+        '--deploy-mode', 'cluster',
+        '--name', 'hello-spark-job',
+        '--class', 'org.apache.spark.examples.SparkPi',
+
+        # RBAC — use your service account
+        '--conf', 'spark.kubernetes.authenticate.driver.serviceAccountName=spark-role',
+        '--conf', 'spark.kubernetes.executor.serviceAccountName=spark-role',
+
+        # Executors (workers)
+        '--conf', 'spark.executor.instances=3',
+        '--conf', 'spark.executor.memory=2G',
+        '--conf', 'spark.executor.cores=1',
+
+        # Use the same image for executors
+        '--conf', 'spark.kubernetes.container.image=nauedu/nau-analytics-external-data-product:latest',
+
+        # Example SparkPi JAR already included in the image
+        'local:///opt/spark/examples/jars/spark-examples_2.12-3.5.6.jar',
+        '100'
+    ],
+    name='spark-submit-task',
+    task_id='spark_submit_task',
+    get_logs=True,
     )
 
+
     # Set dependency: first Python task, then KubernetesPodOperator
-    hello_task >> hello_pod
+    hello_task >> spark_submit_task
