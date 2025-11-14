@@ -7,7 +7,7 @@ def say_hello():
     print("Hello from Airflow!")
 
 with DAG(
-    dag_id="hello_world_dag",
+    dag_id="spark_submit_dag",
     start_date=datetime(2023, 1, 1),
     schedule=None,  # Run on demand
     catchup=False,
