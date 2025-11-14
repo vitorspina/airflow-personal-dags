@@ -1,9 +1,10 @@
 from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import KubernetesPodOperator
-from datetime import datetime
-from airflow import DAG
 from airflow.operators.python import PythonOperator
+from airflow import DAG
+from datetime import datetime
 
-
+def say_hello():
+    print("Hello from Airflow!")
 
 with DAG(
     dag_id="hello_world_dag",
@@ -13,11 +14,14 @@ with DAG(
     tags=["example"],
 ) as dag:
 
-
+    hello_task = PythonOperator(
+        task_id="print_hello",
+        python_callable=say_hello,
+    )
 
     hello_pod = KubernetesPodOperator(
         namespace="analytics",  # Change if needed
-        image="bash:5.2",     # lightweight image with bash
+        image="bash:5.2",       # lightweight image with bash
         cmds=["/bin/bash", "-c"],
         arguments=["echo 'Hello from KubernetesPodOperator!' && sleep 60"],
         name="hello-pod",
@@ -26,10 +30,5 @@ with DAG(
         is_delete_operator_pod=True,  # Delete pod after completion
     )
 
-    hello_task = PythonOperator(
-            task_id="print_hello",
-            python_callable=say_hello,
-    )
-
-
-hello_task >> spark_pod_task
+    # Set dependency: first Python task, then KubernetesPodOperator
+    hello_task >> hello_pod
