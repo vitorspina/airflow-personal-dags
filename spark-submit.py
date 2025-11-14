@@ -22,7 +22,7 @@ with DAG(
 
     hello_pod = KubernetesPodOperator(
         namespace="analytics",  # Change if needed
-        image="bash:5.2",       # lightweight image with bash
+        image='ubuntu:24.04',       # lightweight image with bash
         cmds=["/bin/bash", "-c"],
         arguments=["echo 'Hello from KubernetesPodOperator!' && sleep 60"],
         name="hello-pod",
