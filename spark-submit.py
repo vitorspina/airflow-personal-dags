@@ -48,7 +48,7 @@ with DAG(
         'local:///opt/spark/examples/jars/spark-examples_2.12-3.5.1.jar',
         '100'
     ],
-    service_account='spark-role',
+    pod_override={"serviceAccountName": "spark-role"},
     name='spark-submit-task',
     task_id='spark_submit_task',
 
