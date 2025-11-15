@@ -20,14 +20,21 @@ with DAG(
         python_callable=say_hello,
     )
 
-    hello_pod = KubernetesPodOperator(
+    spark_submit_task = KubernetesPodOperator(
     namespace='analytics',
-    image='nauedu/nau-analytics-external-data-product:latest',
+    service_account_name='spark-role',
+
+    # ✔ official spark image built for k8s
+    image='apache/spark:3.5.1-scala2.12-java11-python3',
+
+    # ✔ override entrypoint to run spark-submit
     cmds=['/opt/spark/bin/spark-submit'],
+
+    # ✔ submit a SparkPi example packaged inside the image
     arguments=[
         '--master', 'k8s://https://kubernetes.default.svc:443',
         '--deploy-mode', 'cluster',
-        '--name', 'hello-spark-job',
+        '--name', 'spark-pi-job',
         '--class', 'org.apache.spark.examples.SparkPi',
 
         # RBAC — use your service account
@@ -38,20 +45,17 @@ with DAG(
         '--conf', 'spark.executor.instances=3',
         '--conf', 'spark.executor.memory=2G',
         '--conf', 'spark.executor.cores=1',
-
-        # Use the same image for executors
-        '--conf', 'spark.kubernetes.container.image=nauedu/nau-analytics-external-data-product:latest',
-
-        # Example SparkPi JAR already included in the image
-        'local:///opt/spark/examples/jars/spark-examples_2.12-3.5.6.jar',
+        'local:///opt/spark/examples/jars/spark-examples_2.12-3.5.1.jar',
         '100'
     ],
+
     name='spark-submit-task',
     task_id='spark_submit_task',
+
     get_logs=True,
-    is_delete_operator_pod = False,
+    is_delete_operator_pod=False,
     )
 
 
     # Set dependency: first Python task, then KubernetesPodOperator
-    hello_task >> hello_pod
+    hello_task >> spark_submit_task
