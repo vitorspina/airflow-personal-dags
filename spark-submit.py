@@ -45,7 +45,7 @@ with DAG(
         '--conf', 'spark.executor.instances=3',
         '--conf', 'spark.executor.memory=2G',
         '--conf', 'spark.executor.cores=1',
-        --'conf', 'spark.kubernetes.driver.deleteOnTermination=false',
+        '--conf', 'spark.kubernetes.driver.deleteOnTermination=false',
         'local:///opt/spark/examples/jars/spark-examples_2.12-3.5.1.jar',
         '100'
     ],
