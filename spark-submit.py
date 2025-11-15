@@ -25,7 +25,7 @@ with DAG(
     service_account_name='spark-role',
 
     # ✔ official spark image built for k8s
-    image='apache/spark:3.5.1-scala2.12-java11-python3',
+    image='apache/spark:3.5.6',
 
     # ✔ override entrypoint to run spark-submit
     cmds=['/opt/spark/bin/spark-submit'],
