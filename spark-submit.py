@@ -25,8 +25,7 @@ with DAG(
     service_account_name='spark-role',
 
     # ✔ official spark image built for k8s
-    image='masterpingas/spark-shell',
-
+    image='masterpingas/spark-shell:v1',
     # ✔ override entrypoint to run spark-submit
     cmds=['spark-submit'],
 
