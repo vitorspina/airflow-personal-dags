@@ -1,10 +1,10 @@
-from airflow.providers.cncf.kubernetes.operators.pod import KubernetesPodOperator
+from airflow.providers.cncf.kubernetes.operators.pod import KubernetesPodOperator #type: ignore
 
-from airflow.operators.python import PythonOperator
-from airflow import DAG
+from airflow.operators.python import PythonOperator #type: ignore
+from airflow import DAG #type: ignore
 from datetime import datetime
 
-def say_hello():
+def say_hello() -> None:
     print("Hello from Airflow!")
 
 with DAG(
@@ -25,29 +25,26 @@ with DAG(
     service_account_name='spark-role',
 
     # ✔ official spark image built for k8s
-    image='apache/spark:3.5.6',
+    image='masterpingas/spark-shell',
 
     # ✔ override entrypoint to run spark-submit
-    cmds=['/opt/spark/bin/spark-submit'],
+    cmds=['spark-submit'],
 
     # ✔ submit a SparkPi example packaged inside the image
     arguments=[
-        '--master', 'k8s://https://kubernetes.default.svc:443',
-        '--deploy-mode', 'cluster',
-        '--name', 'spark-pi-job',
-        '--class', 'org.apache.spark.examples.SparkPi',
-
-        # RBAC — use your service account
-        '--conf', 'spark.kubernetes.authenticate.driver.serviceAccountName=spark-role',
-        '--conf', 'spark.kubernetes.executor.serviceAccountName=spark-role',
-
-        # Executors (workers)
-        '--conf', 'spark.executor.instances=3',
-        '--conf', 'spark.executor.memory=2G',
-        '--conf', 'spark.executor.cores=1',
-        '--conf', 'spark.kubernetes.driver.deleteOnTermination=false',
-        'local:///opt/spark/examples/jars/spark-examples_2.12-3.5.1.jar',
-        '100'
+    "--master", "k8s://https://kubernetes.default.svc:443",
+    "--deploy-mode", "cluster",
+    "--name", "spark-pi",
+    "--conf", "spark.kubernetes.container.image=masterpingas/custom-spark-with-ex:v1",
+    "--conf", "spark.kubernetes.namespace=analytics",
+    "--conf", "spark.kubernetes.authenticate.driver.serviceAccountName=spark-role",
+    "--conf", "spark.executor.instances=5",
+    "--conf", "spark.executor.cores=2",
+    "--conf", "spark.executor.memory=2g",
+    "--conf", "spark.kubernetes.submission.waitAppCompletion=true",
+    "--conf", "spark.kubernetes.driver.deleteOnTermination=true",
+    "--conf", "spark.kubernetes.executor.deleteOnTermination=true",
+    "local:///opt/spark/work-dir/src/test.py"
     ],
     name='spark-submit-task',
     task_id='spark_submit_task',
