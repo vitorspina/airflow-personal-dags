@@ -27,11 +27,12 @@ with DAG(
     # ✔ official spark image built for k8s
     image='masterpingas/spark-shell:v1',
     # ✔ override entrypoint to run spark-submit
-    cmds=['spark-submit'],
+    cmds=[],
 
     # ✔ submit a SparkPi example packaged inside the image
     arguments=[
         """
+            spark-submit \
           --master k8s://https://kubernetes.default.svc:443 \
           --deploy-mode cluster \
           --name spark-pi \
