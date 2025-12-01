@@ -27,7 +27,7 @@ with DAG(
     # ✔ official spark image built for k8s
     image='masterpingas/spark-shell:v1',
     # ✔ override entrypoint to run spark-submit
-    cmds=[],
+    cmds=["/bin/bash", "-c"],
 
     # ✔ submit a SparkPi example packaged inside the image
     arguments=[
