@@ -47,7 +47,7 @@ with DAG(
           --conf spark.kubernetes.driver.deleteOnTermination=true \
           --conf spark.kubernetes.executor.deleteOnTermination=true \
           --conf spark.kubernetes.container.image.pullPolicy=Always \
-          local:///opt/spark/work-dir/src/bronze/get_full_tables.py \
+          local:///opt/spark/work-dir/src/misc/hello_spark.py \
           2>&1 | tee log.txt; LAST_EXIT=$(grep -Ei "exit code" log.txt | tail -n1 | sed 's/.*: *//'); echo "Parsed Spark exit code: $LAST_EXIT"; exit "$LAST_EXIT"
         """
     ],
